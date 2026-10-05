@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">SANA</string>
+    <string name="tagline">Intelligent AI Voice Assistant</string>
+    <string name="state_idle">Tap microphone to begin continuous voice chat</string>
+    <string name="state_listening">Listening… speak naturally</string>
+    <string name="state_processing">Thinking…</string>
+    <string name="state_speaking">SANA is speaking…</string>
+    <string name="state_error">Something went wrong</string>
+    <string name="btn_start_voice">Start Voice</string>
+    <string name="btn_stop">Stop Conversation</string>
+    <string name="btn_retry">Retry</string>
+    <string name="mode_assistant">Assistant</string>
+    <string name="mode_friend">Friend</string>
+    <string name="mode_companion">Companion</string>
+    <string name="mode_romantic">Romantic</string>
+    <string name="voice_kore">Kore (Warm &amp; Natural)</string>
+    <string name="voice_aoede">Aoede (Clear &amp; Expressive)</string>
+    <string name="settings_title">SANA Settings</string>
+    <string name="memory_title">Personal Memory &amp; Preferences</string>
+    <string name="permission_microphone_rationale">Microphone access is required for real-time hands-free voice conversation with SANA.</string>
+    <string name="notification_service_title">SANA Voice Assistant</string>
+    <string name="notification_service_listening">Continuous voice mode active</string>
+    <string name="action_stop">Stop</string>
+</resources>

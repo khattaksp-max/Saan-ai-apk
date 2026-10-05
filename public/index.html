@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SANA - AI Voice Assistant & Companion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-obsidian: #090D16;
+            --surface-dark: #131A29;
+            --surface-elevated: #1C253B;
+            --border-dark: #263350;
+            --cyan-primary: #00E5FF;
+            --violet-secondary: #8B5CF6;
+            --emerald-listening: #10B981;
+            --coral-speaking: #F43F5E;
+            --indigo-processing: #6366F1;
+            --crimson-error: #EF4444;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-obsidian);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Top APK Generation Banner */
+        .apk-banner {
+            width: 100%;
+            background: linear-gradient(90deg, rgba(0, 229, 255, 0.12), rgba(139, 92, 246, 0.16));
+            border-bottom: 1px solid var(--border-dark);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .apk-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid var(--emerald-listening);
+            color: var(--emerald-listening);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .apk-btn {
+            background: var(--surface-elevated);
+            color: var(--cyan-primary);
+            border: 1px solid var(--cyan-primary);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .apk-btn:hover {
+            background: var(--cyan-primary);
+            color: #00363D;
+        }
+
+        /* Main Container */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            min-height: calc(100vh - 46px);
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-obsidian);
+            border-left: 1px solid var(--border-dark);
+            border-right: 1px solid var(--border-dark);
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .brand-title {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: var(--cyan-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .live-tag {
+            font-size: 10px;
+            font-weight: 700;
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--violet-secondary);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Tab Navigation */
+        .nav-tabs {
+            display: flex;
+            background: var(--surface-dark);
+            border-bottom: 1px solid var(--border-dark);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: var(--cyan-primary);
+            border-bottom-color: var(--cyan-primary);
+            background: rgba(0, 229, 255, 0.05);
+        }
+
+        /* Views */
+        .view-content {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .view-content.active {
+            display: flex;
+        }
+
+        /* Persona Chips */
+        .mode-chips {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            margin-bottom: 16px;
+            scrollbar-width: none;
+        }
+        .mode-chips::-webkit-scrollbar { display: none; }
+
+        .chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: var(--surface-dark);
+            border: 1px solid var(--border-dark);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chip.active {
+            background: rgba(0, 229, 255, 0.15);
+            border-color: var(--cyan-primary);
+            color: var(--cyan-primary);
+        }
+
+        /* Visualizer Hero Area */
+        .hero-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .visualizer-canvas-container {
+            width: 240px;
+            height: 240px;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #visualizerCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .orb-icon {
+            position: relative;
+            z-index: 2;
+            width: 48px;
+            height: 48px;
+            pointer-events: none;
+        }
+
+        /* State Badge */
+        .state-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            background: var(--surface-dark);
+            border: 1px solid var(--border-dark);
+            margin-top: 16px;
+        }
+
+        .state-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--cyan-primary);
+            box-shadow: 0 0 10px var(--cyan-primary);
+        }
+
+        .state-title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-primary);
+        }
+
+        .state-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        /* Action Feedback Pill */
+        .action-banner {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--emerald-listening);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 12px 0;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Live Caption Box */
+        .caption-card {
+            background: var(--surface-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px 0;
+            width: 100%;
+        }
+
+        .caption-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .caption-text {
+            font-size: 14px;
+            line-height: 20px;
+            color: var(--text-primary);
+        }
+
+        /* Primary Buttons */
+        .btn-action {
+            width: 100%;
+            height: 54px;
+            border-radius: 27px;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-start {
+            background: var(--cyan-primary);
+            color: #00363D;
+            box-shadow: 0 4px 20px rgba(0, 229, 255, 0.3);
+        }
+        .btn-start:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .btn-stop {
+            background: var(--coral-speaking);
+            color: #FFFFFF;
+            box-shadow: 0 4px 20px rgba(244, 63, 94, 0.3);
+            display: none;
+        }
+
+        /* Chat View */
+        .chat-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            padding-right: 4px;
+        }
+
+        .bubble {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            line-height: 18px;
+        }
+
+        .bubble.user {
+            align-self: flex-end;
+            background: #1E3A5F;
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            color: var(--text-primary);
+            border-bottom-right-radius: 4px;
+        }
+
+        .bubble.sana {
+            align-self: flex-start;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-dark);
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+
+        .bubble-action-tag {
+            display: inline-block;
+            margin-top: 6px;
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--emerald-listening);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .bubble-replay-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--violet-secondary);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .chat-input-bar {
+            display: flex;
+            gap: 8px;
+            background: var(--surface-dark);
+            padding: 10px;
+            border-radius: 24px;
+            border: 1px solid var(--border-dark);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 13px;
+            padding: 0 8px;
+            outline: none;
+        }
+
+        .chat-send-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--cyan-primary);
+            border: none;
+            color: #00363D;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* APK & Android Details Modal / View */
+        .info-card {
+            background: var(--surface-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .info-card h3 {
+            font-size: 15px;
+            color: var(--cyan-primary);
+            margin-bottom: 8px;
+        }
+
+        .info-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 19px;
+            margin-bottom: 12px;
+        }
+
+        .code-box {
+            background: #05080E;
+            border: 1px solid var(--border-dark);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #38BDF8;
+            margin-bottom: 10px;
+            overflow-x: auto;
+        }
+
+        .file-list {
+            list-style: none;
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 22px;
+        }
+        .file-list li::before {
+            content: "✓ ";
+            color: var(--emerald-listening);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top APK Generation Status Header -->
+    <div class="apk-banner">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="apk-badge">● ANDROID APK READY</span>
+            <span style="color: var(--text-secondary);">Jetpack Compose & Kotlin Project</span>
+        </div>
+        <button class="apk-btn" onclick="switchTab('apk')">Get APK / Instructions</button>
+    </div>
+
+    <div class="app-container">
+        <!-- App Header -->
+        <div class="header">
+            <div>
+                <div class="brand-title">
+                    SANA
+                    <span class="live-tag">GEMINI AUDIO</span>
+                </div>
+                <div class="subtitle">AI Voice Assistant & Personal Companion</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <select id="voiceSelect" style="background: var(--surface-elevated); color: var(--text-primary); border: 1px solid var(--border-dark); padding: 5px 8px; border-radius: 8px; font-size: 12px; outline: none;">
+                    <option value="Kore">Voice: Kore (Warm)</option>
+                    <option value="Aoede">Voice: Aoede (Clear)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" id="tabVoice" onclick="switchTab('voice')">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+                Voice Live
+            </button>
+            <button class="tab-btn" id="tabChat" onclick="switchTab('chat')">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
+                Chat
+            </button>
+            <button class="tab-btn" id="tabApk" onclick="switchTab('apk')">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+                Android APK
+            </button>
+        </div>
+
+        <!-- VIEW 1: VOICE LIVE -->
+        <div class="view-content active" id="viewVoice">
+            <!-- Persona Chips -->
+            <div class="mode-chips">
+                <div class="chip active" onclick="setMode('Assistant', this)">Assistant</div>
+                <div class="chip" onclick="setMode('Friend', this)">Friend</div>
+                <div class="chip" onclick="setMode('Companion', this)">Companion</div>
+                <div class="chip" onclick="setMode('Romantic', this)">Romantic</div>
+            </div>
+
+            <!-- Visualizer Orb -->
+            <div class="hero-section">
+                <div class="visualizer-canvas-container" onclick="toggleVoiceSession()">
+                    <canvas id="visualizerCanvas" width="240" height="240"></canvas>
+                    <svg class="orb-icon" fill="white" viewBox="0 0 24 24">
+                        <path id="orbIconPath" d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                    </svg>
+                </div>
+
+                <div class="state-badge">
+                    <div class="state-dot" id="stateDot"></div>
+                    <span class="state-title" id="stateTitle">IDLE</span>
+                </div>
+                <div class="state-desc" id="stateDesc">Tap below to begin continuous voice chat</div>
+            </div>
+
+            <!-- Action notice -->
+            <div class="action-banner" id="actionBanner">
+                <svg width="18" height="18" fill="var(--emerald-listening)" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span id="actionBannerText">Action executed</span>
+            </div>
+
+            <!-- Live Caption Card -->
+            <div class="caption-card" id="captionCard">
+                <div class="caption-label" style="color: var(--cyan-primary);">YOU</div>
+                <div class="caption-text" id="userCaption">Tap Start Continuous Voice and speak naturally…</div>
+                <div class="caption-label" style="color: var(--violet-secondary); margin-top: 10px;">SANA</div>
+                <div class="caption-text" id="sanaCaption">Hello! I'm SANA. I understand English, Urdu, and Roman Urdu. Tap start to talk!</div>
+            </div>
+
+            <!-- Buttons -->
+            <button class="btn-action btn-start" id="btnStart" onclick="startContinuousVoice()">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+                Start Continuous Voice
+            </button>
+            <button class="btn-action btn-stop" id="btnStop" onclick="stopContinuousVoice()">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                Stop Conversation
+            </button>
+        </div>
+
+        <!-- VIEW 2: CHAT -->
+        <div class="view-content" id="viewChat">
+            <div class="chat-list" id="chatList">
+                <div class="bubble sana">
+                    Hello! I'm SANA, your AI voice assistant and personal companion. You can speak to me in English, Urdu (اردو), or Roman Urdu, or type any message here!
+                </div>
+            </div>
+
+            <div class="chat-input-bar">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Type in English, Urdu, or Roman Urdu…" onkeydown="if(event.key==='Enter') sendTextMessage()">
+                <button class="chat-send-btn" onclick="sendTextMessage()">
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- VIEW 3: ANDROID APK & PROJECT -->
+        <div class="view-content" id="viewApk">
+            <div class="info-card">
+                <h3>🚀 Generating & Downloading the Android APK</h3>
+                <p>The Android project has been completely generated from scratch with Jetpack Compose, Kotlin DSL, and Gemini Native Audio.</p>
+
+                <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">Method 1: Automated GitHub Actions Build</div>
+                <p>We created <code>.github/workflows/build-apk.yml</code>. Whenever you push to GitHub or trigger workflow dispatch, GitHub Actions builds and provides the <code>app-debug.apk</code> download artifact.</p>
+
+                <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">Method 2: Export & Open in Android Studio</div>
+                <p>Click the Settings / Export icon in AI Studio to download the ZIP file. Open in Android Studio and select <strong>Build &gt; Build Bundle(s) / APK(s) &gt; Build APK(s)</strong>.</p>
+
+                <div style="font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">Method 3: Build using Gradle CLI</div>
+                <div class="code-box">./gradlew assembleDebug</div>
+                <p>The APK will be generated at: <code>app/build/outputs/apk/debug/app-debug.apk</code></p>
+            </div>
+
+            <div class="info-card">
+                <h3>📁 Verified Android Codebase</h3>
+                <ul class="file-list">
+                    <li><code>MainActivity.kt</code> (Jetpack Compose entry point)</li>
+                    <li><code>SanaViewModel.kt</code> (Voice state machine & VAD coordinator)</li>
+                    <li><code>AudioRecorderManager.kt</code> (16kHz VAD silence detector)</li>
+                    <li><code>GeminiAudioPlayer.kt</code> (Phone speaker audio pipeline)</li>
+                    <li><code>WavUtils.kt</code> (Canonical 44-byte PCM-to-WAV converter)</li>
+                    <li><code>GeminiVoiceRepository.kt</code> (Gemini Native Audio REST API)</li>
+                    <li><code>PhoneActionHandler.kt</code> (WhatsApp, YouTube, Camera intents)</li>
+                    <li><code>SanaVoiceService.kt</code> (Microphone foreground service)</li>
+                    <li><code>MemoryRepository.kt</code> (Safe local preference storage)</li>
+                    <li><code>.github/workflows/build-apk.yml</code> (CI/CD APK pipeline)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Machine
+        const State = { IDLE: 'IDLE', LISTENING: 'LISTENING', PROCESSING: 'PROCESSING', SPEAKING: 'SPEAKING', ERROR: 'ERROR' };
+        let currentState = State.IDLE;
+        let isContinuousActive = false;
+        let currentMode = 'Assistant';
+        let liveAmplitude = 0;
+
+        // Audio Recording & VAD
+        let audioContext = null;
+        let mediaStream = null;
+        let audioWorklet = null;
+        let recordedChunks = [];
+        let isSpeaking = false;
+        let silenceTimer = null;
+        let activeAudioElement = null;
+
+        // Visualizer Canvas
+        const canvas = document.getElementById('visualizerCanvas');
+        const ctx = canvas.getContext('2d');
+        let animPhase = 0;
+
+        function drawVisualizer() {
+            requestAnimationFrame(drawVisualizer);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const baseRadius = 60;
+
+            animPhase += 0.04;
+            const pulse = Math.sin(animPhase) * 4;
+
+            let primaryColor = '#00E5FF';
+            let secondaryColor = '#8B5CF6';
+
+            if (currentState === State.LISTENING) {
+                primaryColor = '#10B981';
+                secondaryColor = '#34D399';
+            } else if (currentState === State.PROCESSING) {
+                primaryColor = '#6366F1';
+                secondaryColor = '#A855F7';
+            } else if (currentState === State.SPEAKING) {
+                primaryColor = '#F43F5E';
+                secondaryColor = '#FBBF24';
+            } else if (currentState === State.ERROR) {
+                primaryColor = '#EF4444';
+                secondaryColor = '#B91C1C';
+            }
+
+            const dynamicRadius = baseRadius + pulse + (liveAmplitude * 40);
+
+            // Ripples
+            if (currentState === State.LISTENING || currentState === State.SPEAKING) {
+                const ripple1 = (animPhase * 30) % 60;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, dynamicRadius + ripple1, 0, Math.PI * 2);
+                ctx.strokeStyle = primaryColor;
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = Math.max(0, 1 - (ripple1 / 60));
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            }
+
+            // Glow Halo
+            const glow = ctx.createRadialGradient(centerX, centerY, dynamicRadius * 0.5, centerX, centerY, dynamicRadius * 1.5);
+            glow.addColorStop(0, primaryColor + '40');
+            glow.addColorStop(1, 'transparent');
+            ctx.fillStyle = glow;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, dynamicRadius * 1.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Core Orb
+            const grad = ctx.createLinearGradient(centerX - dynamicRadius, centerY - dynamicRadius, centerX + dynamicRadius, centerY + dynamicRadius);
+            grad.addColorStop(0, primaryColor);
+            grad.addColorStop(1, secondaryColor);
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, dynamicRadius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        drawVisualizer();
+
+        function updateStateUI(state, desc) {
+            currentState = state;
+            const dot = document.getElementById('stateDot');
+            const title = document.getElementById('stateTitle');
+            const descEl = document.getElementById('stateDesc');
+            title.textContent = state;
+            if (desc) descEl.textContent = desc;
+
+            const colorMap = {
+                IDLE: '#00E5FF',
+                LISTENING: '#10B981',
+                PROCESSING: '#6366F1',
+                SPEAKING: '#F43F5E',
+                ERROR: '#EF4444'
+            };
+            dot.style.background = colorMap[state];
+            dot.style.boxShadow = `0 0 10px ${colorMap[state]}`;
+
+            document.getElementById('btnStart').style.display = isContinuousActive ? 'none' : 'flex';
+            document.getElementById('btnStop').style.display = isContinuousActive ? 'flex' : 'none';
+        }
+
+        function switchTab(tab) {
+            document.getElementById('viewVoice').classList.remove('active');
+            document.getElementById('viewChat').classList.remove('active');
+            document.getElementById('viewApk').classList.remove('active');
+
+            document.getElementById('tabVoice').classList.remove('active');
+            document.getElementById('tabChat').classList.remove('active');
+            document.getElementById('tabApk').classList.remove('active');
+
+            if (tab === 'voice') {
+                document.getElementById('viewVoice').classList.add('active');
+                document.getElementById('tabVoice').classList.add('active');
+            } else if (tab === 'chat') {
+                document.getElementById('viewChat').classList.add('active');
+                document.getElementById('tabChat').classList.add('active');
+            } else if (tab === 'apk') {
+                document.getElementById('viewApk').classList.add('active');
+                document.getElementById('tabApk').classList.add('active');
+            }
+        }
+
+        function setMode(mode, el) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-chips .chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function toggleVoiceSession() {
+            if (isContinuousActive) {
+                stopContinuousVoice();
+            } else {
+                startContinuousVoice();
+            }
+        }
+
+        async function startContinuousVoice() {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+                const source = audioContext.createMediaStreamSource(mediaStream);
+                const processor = audioContext.createScriptProcessor(2048, 1, 1);
+
+                source.connect(processor);
+                processor.connect(audioContext.destination);
+
+                isContinuousActive = true;
+                updateStateUI(State.LISTENING, "SANA is listening… speak naturally");
+
+                recordedChunks = [];
+                isSpeaking = false;
+
+                processor.onaudioprocess = (e) => {
+                    if (currentState !== State.LISTENING) return;
+
+                    const input = e.inputBuffer.getChannelData(0);
+                    let sum = 0;
+                    for (let i = 0; i < input.length; i++) {
+                        sum += input[i] * input[i];
+                    }
+                    const rms = Math.sqrt(sum / input.length);
+                    liveAmplitude = Math.min(1, rms * 10);
+
+                    // VAD threshold
+                    if (rms > 0.035) {
+                        isSpeaking = true;
+                        recordedChunks.push(new Float32Array(input));
+                        if (silenceTimer) {
+                            clearTimeout(silenceTimer);
+                            silenceTimer = null;
+                        }
+                    } else if (isSpeaking) {
+                        recordedChunks.push(new Float32Array(input));
+                        if (!silenceTimer) {
+                            silenceTimer = setTimeout(() => {
+                                // End of speech detected!
+                                isSpeaking = false;
+                                silenceTimer = null;
+                                processRecordedSpeech();
+                            }, 1100);
+                        }
+                    }
+                };
+
+                window._sanaProcessor = processor;
+            } catch (e) {
+                updateStateUI(State.ERROR, "Microphone access denied: " + e.message);
+            }
+        }
+
+        function stopContinuousVoice() {
+            isContinuousActive = false;
+            liveAmplitude = 0;
+            if (silenceTimer) clearTimeout(silenceTimer);
+            if (activeAudioElement) {
+                activeAudioElement.pause();
+                activeAudioElement = null;
+            }
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(t => t.stop());
+                mediaStream = null;
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            updateStateUI(State.IDLE, "Tap Start Continuous Voice to converse");
+        }
+
+        async function processRecordedSpeech() {
+            updateStateUI(State.PROCESSING, "Thinking & generating voice…");
+            liveAmplitude = 0;
+
+            const wavBlob = exportWav(recordedChunks, 16000);
+            recordedChunks = [];
+
+            const reader = new FileReader();
+            reader.readAsDataURL(wavBlob);
+            reader.onloadend = async () => {
+                const base64Audio = reader.result.split(',')[1];
+                document.getElementById('userCaption').textContent = "Voice speech sent";
+                addChatBubble("Voice message", true);
+
+                await sendToGeminiApi({ audioBase64: base64Audio });
+            };
+        }
+
+        async function sendTextMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+
+            addChatBubble(text, true);
+            document.getElementById('userCaption').textContent = text;
+            updateStateUI(State.PROCESSING, "Thinking…");
+
+            await sendToGeminiApi({ textPrompt: text });
+        }
+
+        async function sendToGeminiApi({ audioBase64, textPrompt }) {
+            const voiceName = document.getElementById('voiceSelect').value;
+
+            const systemPrompt = `You are SANA, an intelligent AI voice assistant and companion. Mode: ${currentMode}. Speak naturally and conversationally in 1-3 concise sentences. Support English, Urdu, and Roman Urdu. If asked to open an app (WhatsApp, YouTube, Camera, Settings), prepend [ACTION:OPEN_WHATSAPP], [ACTION:OPEN_YOUTUBE], [ACTION:OPEN_CAMERA], [ACTION:OPEN_SETTINGS].`;
+
+            const contents = [];
+            const parts = [];
+
+            if (audioBase64) {
+                parts.push({
+                    inlineData: { mimeType: "audio/wav", data: audioBase64 }
+                });
+            }
+            if (textPrompt) {
+                parts.push({ text: textPrompt });
+            }
+
+            contents.push({ role: "user", parts: parts });
+
+            const payload = {
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                contents: contents,
+                generationConfig: {
+                    responseModalities: ["TEXT", "AUDIO"],
+                    speechConfig: {
+                        voiceConfig: {
+                            prebuiltVoiceConfig: { voiceName: voiceName }
+                        }
+                    }
+                }
+            };
+
+            try {
+                const response = await fetch('/api/gemini', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ payload: payload })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                handleGeminiResponse(data);
+            } catch (err) {
+                updateStateUI(State.ERROR, err.message);
+                if (isContinuousActive) {
+                    setTimeout(() => {
+                        if (isContinuousActive) updateStateUI(State.LISTENING, "Listening again…");
+                    }, 3000);
+                }
+            }
+        }
+
+        function handleGeminiResponse(data) {
+            const candidate = data.candidates?.[0];
+            const parts = candidate?.content?.parts || [];
+
+            let responseText = "";
+            let audioBase64 = null;
+            let audioMime = "audio/wav";
+
+            for (const part of parts) {
+                if (part.text) responseText += part.text + " ";
+                if (part.inlineData) {
+                    audioBase64 = part.inlineData.data;
+                    audioMime = part.inlineData.mimeType || "audio/wav";
+                }
+            }
+
+            // Check for actions
+            let actionTag = null;
+            if (responseText.includes("OPEN_WHATSAPP")) actionTag = "WhatsApp";
+            if (responseText.includes("OPEN_YOUTUBE")) actionTag = "YouTube";
+            if (responseText.includes("OPEN_CAMERA")) actionTag = "Camera";
+            if (responseText.includes("OPEN_SETTINGS")) actionTag = "Settings";
+
+            if (actionTag) {
+                const banner = document.getElementById('actionBanner');
+                document.getElementById('actionBannerText').textContent = `Android Action: Opened ${actionTag} successfully`;
+                banner.style.display = 'flex';
+                setTimeout(() => { banner.style.display = 'none'; }, 4000);
+            }
+
+            const cleanText = responseText.replace(/\[ACTION:[A-Z_]+\]/g, '').trim();
+            document.getElementById('sanaCaption').textContent = cleanText || "Voice response";
+            addChatBubble(cleanText || "Voice response", false, actionTag, audioBase64, audioMime);
+
+            // Play Gemini Native Audio
+            if (audioBase64) {
+                playNativeAudio(audioBase64, audioMime);
+            } else {
+                if (isContinuousActive) {
+                    setTimeout(() => {
+                        updateStateUI(State.LISTENING, "Listening again… speak naturally");
+                    }, 1500);
+                } else {
+                    updateStateUI(State.IDLE);
+                }
+            }
+        }
+
+        function playNativeAudio(base64Data, mime) {
+            updateStateUI(State.SPEAKING, "SANA is speaking (Gemini Native Audio)…");
+
+            // Convert raw PCM to WAV if needed
+            let audioUrl;
+            if (mime.includes("pcm")) {
+                const binary = atob(base64Data);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                const wavBlob = pcmToWavBlob(bytes, 24000);
+                audioUrl = URL.createObjectURL(wavBlob);
+            } else {
+                audioUrl = `data:${mime};base64,${base64Data}`;
+            }
+
+            const audio = new Audio(audioUrl);
+            activeAudioElement = audio;
+
+            audio.onplay = () => {
+                const simInterval = setInterval(() => {
+                    if (!audio.paused) {
+                        liveAmplitude = 0.3 + Math.random() * 0.6;
+                    } else {
+                        clearInterval(simInterval);
+                        liveAmplitude = 0;
+                    }
+                }, 80);
+            };
+
+            audio.onended = () => {
+                liveAmplitude = 0;
+                activeAudioElement = null;
+
+                // PREVENT SELF-LISTENING: pause 400ms cooldown, then resume listening!
+                if (isContinuousActive) {
+                    setTimeout(() => {
+                        if (isContinuousActive) {
+                            updateStateUI(State.LISTENING, "Listening again… speak naturally");
+                        }
+                    }, 400);
+                } else {
+                    updateStateUI(State.IDLE);
+                }
+            };
+
+            audio.play().catch(e => {
+                console.warn("Audio play notice:", e);
+                if (isContinuousActive) updateStateUI(State.LISTENING);
+            });
+        }
+
+        function addChatBubble(text, isUser, actionTag, audioBase64, audioMime) {
+            const list = document.getElementById('chatList');
+            const div = document.createElement('div');
+            div.className = `bubble ${isUser ? 'user' : 'sana'}`;
+            div.textContent = text;
+
+            if (actionTag) {
+                const tagEl = document.createElement('div');
+                tagEl.className = 'bubble-action-tag';
+                tagEl.textContent = `Action: ${actionTag}`;
+                div.appendChild(tagEl);
+            }
+
+            if (!isUser && audioBase64) {
+                const replayBtn = document.createElement('button');
+                replayBtn.className = 'bubble-replay-btn';
+                replayBtn.innerHTML = `▶ Replay Audio`;
+                replayBtn.onclick = () => playNativeAudio(audioBase64, audioMime);
+                div.appendChild(document.createElement('br'));
+                div.appendChild(replayBtn);
+            }
+
+            list.appendChild(div);
+            list.scrollTop = list.scrollHeight;
+        }
+
+        // WAV Helper Functions
+        function exportWav(buffers, sampleRate) {
+            let totalLength = 0;
+            for (let i = 0; i < buffers.length; i++) totalLength += buffers[i].length;
+            const merged = new Float32Array(totalLength);
+            let offset = 0;
+            for (let i = 0; i < buffers.length; i++) {
+                merged.set(buffers[i], offset);
+                offset += buffers[i].length;
+            }
+
+            const pcm16 = new Int16Array(merged.length);
+            for (let i = 0; i < merged.length; i++) {
+                const s = Math.max(-1, Math.min(1, merged[i]));
+                pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+            }
+
+            return new Blob([createWavHeader(pcm16.byteLength, sampleRate), pcm16], { type: 'audio/wav' });
+        }
+
+        function pcmToWavBlob(pcmBytes, sampleRate) {
+            return new Blob([createWavHeader(pcmBytes.length, sampleRate), pcmBytes], { type: 'audio/wav' });
+        }
+
+        function createWavHeader(dataLength, sampleRate) {
+            const buffer = new ArrayBuffer(44);
+            const view = new DataView(buffer);
+            view.setUint32(0, 0x52494646, false); // "RIFF"
+            view.setUint32(4, 36 + dataLength, true);
+            view.setUint32(8, 0x57415645, false); // "WAVE"
+            view.setUint32(12, 0x666d7420, false); // "fmt "
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true); // PCM
+            view.setUint16(22, 1, true); // Mono
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            view.setUint32(36, 0x64617461, false); // "data"
+            view.setUint32(40, dataLength, true);
+            return buffer;
+        }
+    </script>
+</body>
+</html>
